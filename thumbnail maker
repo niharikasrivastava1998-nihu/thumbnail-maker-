@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thumbnail Generator</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 20px auto; text-align: center; background: #f4f4f9; }
+        .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        video { width: 100%; border-radius: 8px; margin-top: 10px; }
+        canvas { display: none; }
+        #preview { margin-top: 20px; border: 3px solid #007bff; border-radius: 8px; max-width: 100%; }
+        .controls { margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
+        button { padding: 10px 20px; cursor: pointer; border-radius: 5px; border: none; background: #007bff; color: white; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        input[type="file"] { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Video Thumbnail Generator</h2>
+    <input type="file" id="upload" accept="video/*">
+    
+    <div id="videoContainer" style="display:none;">
+        <p>Step 1: Pause the video on the frame you want.</p>
+        <video id="mainVideo" controls></video>
+        
+        <div class="controls">
+            <button onclick="captureFrame()">Step 2: Capture Frame</button>
+            <a id="downloadLink" style="display:none;"><button style="background: #28a745;">Step 3: Download PNG</button></a>
+        </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+    <h3>Preview:</h3>
+    <img id="preview" src="" alt="Captured frame will appear here">
+</div>
+
+<script>
+    const upload = document.getElementById('upload');
+    const video = document.getElementById('mainVideo');
+    const canvas = document.getElementById('canvas');
+    const preview = document.getElementById('preview');
+    const downloadLink = document.getElementById('downloadLink');
+    const videoContainer = document.getElementById('videoContainer');
+
+    // Handle video upload
+    upload.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const url = URL.createObjectURL(file);
+            video.src = url;
+            videoContainer.style.display = 'block';
+        }
+    });
+
+    // Capture the current frame from the video
+    function captureFrame() {
+        const context = canvas.getContext('2d');
+        
+        // Set canvas size to match video resolution
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        // Draw the current video frame onto the canvas
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // Convert canvas to image URL
+        const dataURL = canvas.toDataURL('image/png');
+        preview.src = dataURL;
+        
+        // Prepare the download link
+        downloadLink.href = dataURL;
+        downloadLink.download = 'thumbnail.png';
+        downloadLink.style.display = 'inline-block';
+    }
+</script>
+
+</body>
+</html>
